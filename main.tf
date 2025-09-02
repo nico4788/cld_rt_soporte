@@ -1,26 +1,3 @@
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.aws_region
-  
-  default_tags {
-    tags = {
-      Project     = var.project_name
-      Owner       = var.owner
-      Environment = var.environment
-      ManagedBy   = "terraform"
-    }
-  }
-}
-
 # Módulo Global (recursos únicos)
 module "global" {
   source = "./modules/global"
@@ -45,8 +22,7 @@ module "regional" {
   key_pair_name         = var.key_pair_name
   
   # Outputs del módulo global
-  s3_bucket_name = module.global.s3_bucket_name
-  ec2_role_arn   = module.global.ec2_role_arn
-  
-  depends_on = [module.global]
+  s3_bucket_name            = module.global.s3_bucket_name
+  ec2_role_arn              = module.global.ec2_role_arn
+  ec2_instance_profile_name = module.global.ec2_instance_profile_name
 }

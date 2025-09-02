@@ -1,53 +1,64 @@
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
+output "vpc_id" {
+  description = "ID of the VPC"
+  value       = aws_vpc.main.id
 }
 
-provider "aws" {
-  region = var.aws_region
-  
-  default_tags {
-    tags = {
-      Project     = var.project_name
-      Owner       = var.owner
-      Environment = var.environment
-      ManagedBy   = "terraform"
-    }
-  }
+output "vpc_cidr" {
+  description = "CIDR block of the VPC"
+  value       = aws_vpc.main.cidr_block
 }
 
-# Módulo Global (recursos únicos)
-module "global" {
-  source = "./modules/global"
-  
-  project_name = var.project_name
-  environment  = var.environment
-  owner        = var.owner
+output "public_subnet_ids" {
+  description = "IDs of the public subnets"
+  value       = aws_subnet.public[*].id
 }
 
-# Módulo Regional (VPC, EC2, etc.)
-module "regional" {
-  source = "./modules/regional"
-  
-  project_name = var.project_name
-  environment  = var.environment
-  owner        = var.owner
-  aws_region   = var.aws_region
-  
-  vpc_cidr              = var.vpc_cidr
-  availability_zones    = var.availability_zones
-  instance_type         = var.instance_type
-  key_pair_name         = var.key_pair_name
-  
-  # Outputs del módulo global
-  s3_bucket_name            = module.global.s3_bucket_name
-  ec2_role_arn              = module.global.ec2_role_arn
-  ec2_instance_profile_name = module.global.ec2_instance_profile_name
-  
-  depends_on = [module.global]
+output "private_subnet_ids" {
+  description = "IDs of the private subnets"
+  value       = aws_subnet.private[*].id
+}
+
+output "internet_gateway_id" {
+  description = "ID of the Internet Gateway"
+  value       = aws_internet_gateway.main.id
+}
+
+output "nat_gateway_id" {
+  description = "ID of the NAT Gateway"
+  value       = aws_nat_gateway.main.id
+}
+
+output "bastion_instance_id" {
+  description = "Instance ID of bastion host"
+  value       = aws_instance.bastion.id
+}
+
+output "bastion_public_ip" {
+  description = "Public IP of bastion host"
+  value       = aws_instance.bastion.public_ip
+}
+
+output "bastion_private_ip" {
+  description = "Private IP of bastion host"
+  value       = aws_instance.bastion.private_ip
+}
+
+output "private_instance_id" {
+  description = "Instance ID of private EC2"
+  value       = aws_instance.private.id
+}
+
+output "private_instance_private_ip" {
+  description = "Private IP of private EC2"
+  value       = aws_instance.private.private_ip
+}
+
+output "bastion_security_group_id" {
+  description = "Security Group ID of bastion host"
+  value       = aws_security_group.bastion.id
+}
+
+output "private_security_group_id" {
+  description = "Security Group ID of private instances"
+  value       = aws_security_group.private_instances.id
 }
